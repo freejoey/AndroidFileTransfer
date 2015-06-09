@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bkg_color"
+    android:orientation="vertical"
+    android:padding="8dp" >
+
+    <TextView
+        style="@style/title_text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:text="是否接受文件?" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送者:" />
+
+        <TextView
+            android:id="@+id/tv_file_sender"
+            style="@style/connected_addr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="文件:" />
+
+        <TextView
+            android:id="@+id/tv_file_name"
+            style="@style/connected_addr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_comfirem"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:layout_marginTop="8dp"
+        android:text="接收" />
+
+    <Button
+        android:id="@+id/bt_refuse"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_height"
+        android:text="忽略" />
+
+</LinearLayout>

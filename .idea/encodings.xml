@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" native2AsciiForPropertiesFiles="true" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/Constants.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/Tools.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/aidl/NETService.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/net/ClientThread.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/net/ListenConnService.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/net/MySocketFactory.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/net/SendFileThread.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/net/ServerThread.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/IsRecvDialogActivity.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/LauncherActivity.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/MainActivity.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/MyFragmentDialog.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/NetBroadcastReceiver.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/RecvFileFragment.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/ui/SendingActivity.java" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

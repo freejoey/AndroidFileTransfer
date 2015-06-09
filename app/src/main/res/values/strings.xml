@@ -1,0 +1,15 @@
+<resources>
+
+    <string name="app_name">Wifi文件传送</string>
+    <string name="sent_file">已发送文件</string>
+    <string name="received_file">已接收文件</string>
+    <string name="sending_file">发送文件</string>
+    <string name="my_addr">我的地址:</string>
+    <string name="conn_state">链接状态</string>
+    <string name="conn_target">链接中的地址:</string>
+    <string name="btn_send_recv">收发文件</string>
+    <string name="sending_title">发送文件</string>
+    <string name="sending_conn">链接</string>
+    <string name="sending_et_hint">输入对方地址(IP)</string>
+    <string name="sending_chose_file">选择发送文件</string>
+</resources>
