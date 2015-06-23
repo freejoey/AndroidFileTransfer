@@ -10,8 +10,10 @@ public class Constants {
 	//询问server的UDP
 	public static int UDP_PORT_SEND = 4469;
 	public static int UDP_PORT_RECV = 4470;
-	public static int UDP_CONN_TIMEOUT = 1000;//链接超时
-	public static String UDP_RSP = "_OK";
+	public static int UDP_RCV_SIZE = 64;
+	//区分是回复，还是搜索UDP消息
+	public static int UDP_FIRST_REQ = 0;//搜索节点时的询问标记
+	public static int UDP_SCND_ACK = 1;//回复询问时
 
 	public static String ROOT_PATH = Environment.getExternalStorageDirectory().getPath();
 	public static String MY_APP_ROOT = ROOT_PATH + "/filetransfer";

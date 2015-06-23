@@ -47,6 +47,8 @@ public class SearchPointRunnable implements Runnable {
         try {
             socket = new  DatagramSocket (Constants.UDP_PORT_SEND);
             String str = Tools.getMyAddr(context);
+            //发送询问信息,格式：|ip地址|用户昵称|类型|
+            str = "|" + str + "|" + MyApplication.getMyName() + "|" + String.valueOf(Constants.UDP_FIRST_REQ) + "|";
             byte data[] = str.getBytes();
             DatagramPacket p = new DatagramPacket (data , data.length , null , Constants.UDP_PORT_RECV);
 
@@ -69,20 +71,6 @@ public class SearchPointRunnable implements Runnable {
             e.printStackTrace();
         }
         finally {
-//                byte data[] = new byte[8];
-//                DatagramPacket pp = new DatagramPacket(data, data.length);
-//                try {
-//                    //socket = new DatagramSocket(Constants.UDP_PORT_RECV);
-//                    socket.setSoTimeout(Constants.UDP_CONN_TIMEOUT);//等待超时时间
-//                    socket.receive(pp);
-//                    if (pp != null && pp.getData().toString().equals(Constants.UDP_RSP)) {
-//                        listener.onAccessable(this.addr);
-//                    } else {
-//                        listener.onUnaccess();
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
             if (socket!=null) {
                 socket.close();
                 socket = null;

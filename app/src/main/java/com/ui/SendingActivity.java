@@ -1,22 +1,12 @@
 package com.ui;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
-import com.Constants;
-import com.MyApplication;
-import com.MyThreadPool;
 import com.Tools;
 import com.aidl.NETInterface;
 import com.aidl.NETService;
 import com.example.myfiletransfer.R;
-import com.net.ClientThread;
-import com.net.MySocketFactory;
+import com.net.UserMode;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -34,8 +24,10 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +40,8 @@ public class SendingActivity extends Activity {
 	private EditText etAddr;
 	private Button btSend;
 	private TextView tvState, tvChose;
+	private ListView lvAccPoints;
+	private AccPointsAdapter accPointsAdapter;
 
 	private String addr = null;
 
@@ -55,10 +49,11 @@ public class SendingActivity extends Activity {
 	public static final int MSG_CONNECTED = 0;
 	public static final int MSG_TARGET_REFUSE = 1;
 	public static final int MSG_SEND_FIN = 2;
-	public static final int MSG_SEND_ERROR = 3;
+//	public static final int MSG_SEND_ERROR = 3;
+	public static final int MSG_POINT_AVAILABLE = 4;
 
 	/*
-	 * ��ǰ״̬: 0: ������ 1������ 2�����ڷ��� 3���������
+	 * 当前状态: 0: 非链接 1：链接 2：正在发送 3：发送完成
 	 */
 	private int stat = 0;
 
@@ -89,6 +84,17 @@ public class SendingActivity extends Activity {
 	}
 
 	private void initView() {
+		lvAccPoints = (ListView) findViewById(R.id.lv_sending_acc_points);
+		accPointsAdapter = new AccPointsAdapter(null, lvAccPoints, getLayoutInflater());
+		lvAccPoints.setAdapter(accPointsAdapter);
+		lvAccPoints.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				addr = accPointsAdapter.getAccPoints().get(position).getIp();
+				connect(addr);
+			}
+		});
+
 		tvChose = (TextView) findViewById(R.id.chose_file_text);
 		tvChose.setVisibility(View.GONE);
 		tvState = (TextView) findViewById(R.id.state_text);
@@ -100,13 +106,14 @@ public class SendingActivity extends Activity {
 				// TODO Auto-generated method stub
 				switch (stat) {
 				case 0:
-					connect();
+					addr = etAddr.getText().toString();
+					connect(addr);
 					break;
 				case 1:
-					Toast.makeText(mContext, "������", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, "已链接", Toast.LENGTH_SHORT).show();
 					break;
 				case 2:
-					Toast.makeText(mContext, "������", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, "已链接", Toast.LENGTH_SHORT).show();
 					break;
 				}
 			}
@@ -119,15 +126,6 @@ public class SendingActivity extends Activity {
 				chooseFile();
 			}
 		});
-
-		// ��һ���Ѿ����ӵĵ�ַ���ļ�
-		if (addr != null && !addr.equals("")) {
-			int re = 0;
-			Message msg = new Message();
-			msg.what = MSG_CONNECTED;
-			msg.obj = re;
-			handler.sendMessage(msg);
-		}
 
 		//搜索可连接点
 		doSearchPoint();
@@ -142,11 +140,9 @@ public class SendingActivity extends Activity {
 	//完成192.168.0.1-192.168.2.254的udp消息广播
 	class SearchAsyn extends AsyncTask<Void, Void, Void>{
 		private Dialog dialog;
-		MyThreadPool pool = null;
 
 		public SearchAsyn(){
 			dialog = Tools.createLoadingDialog(mContext, "正在搜索连接点...");
-			pool = new MyThreadPool();
 		}
 
 		@Override
@@ -159,58 +155,34 @@ public class SendingActivity extends Activity {
 		protected void onPostExecute(Void v){
 			if(dialog!=null && dialog.isShowing())
 				dialog.dismiss();
-
-//			Log.e(Tag, "可连接点:");
-//			HashMap<String, ClientThread> conns = MySocketFactory.getInstance().getAllConn();
-//			for(int i=0; i<conns.size(); i++){
-//				Log.e(Tag, conns.get(i).getName());
-//			}
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
 			SearchPointRunnable runnable = new SearchPointRunnable(mContext);
 			new Thread(runnable).start();
-
-//			String head = "192.168.";
-//			String s1,s2;
-//			for (int i=0; i<3; i++){
-//				s1 = head + String.valueOf(i) + ".";
-//				for (int j=1; j<255; j++){
-//					s2 = s1 + String.valueOf(j);
-//					SearchPointRunnable runnable = new SearchPointRunnable(s2, mContext);
-//					runnable.setListener(new SearchPointRunnable.ConnListener() {
-//						@Override
-//						public void onAccessable(String addr) {
-//							//可连接
-//							Log.i(Tag, "可连接点--->" + addr);
-//						}
-//
-//						@Override
-//						public void onUnaccess() {
-//							//不可连接
-//						}
-//					});
-//					pool.execute(runnable);
-//				}
-//			}
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			return null;
 		}
 	}
 
-	private void connect() {
+	private void connect(final String addr) {
 		if (netService == null)
 			return;
 
 		// if(MySocketFactory.getInstance().isSocketExist(addr))
 		// {
-		// tvState.setText("�Ѿ����ӵ�:" + addr);
+		// tvState.setText("已经链接到:" + addr);
 		// return;
 		// }
 
-		tvState.setText("����������...");
+		tvState.setText("正在链接中...");
 
-		addr = etAddr.getText().toString();
+		//addr = etAddr.getText().toString();
 		if (addr != null && !addr.equals("")) {
 			new Thread() {
 				public void run() {
@@ -245,7 +217,6 @@ public class SendingActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK) {
 			Uri uri = data.getData();
-
 			new SendFileAsyn(uri).execute();
 		}
 		super.onActivityResult(requestCode, resultCode, data);
@@ -261,37 +232,47 @@ public class SendingActivity extends Activity {
 				if (re == 0) {
 					stat = 2;
 					etAddr.setVisibility(View.GONE);
-					tvState.setText("���ӵ�:" + addr);
+					tvState.setText("链接到:" + addr);
 					tvChose.setVisibility(View.VISIBLE);
 				}
 			}
 			else if(msg.what == MSG_TARGET_REFUSE){
 				Bundle b = msg.getData();
-				tvState.setText("�Է��ܾ����ո��ļ�");
+				tvState.setText("对方拒绝接收该文件");
 			}
 			else if(msg.what == MSG_SEND_FIN){
 				stat = 2;
-				tvState.setText("���ͳɹ�");
+				tvState.setText("发送成功");
 			}
-			else if(msg.what == MSG_SEND_ERROR){
-				int errCode = msg.getData().getInt("errCode");
-				if (errCode == -1) {
-					stat = 2;
-					tvState.setText("����ʧ��");
-				} else if (errCode == -2) {
-					stat = 2;
-					tvState.setText("�ļ��в��ܷ���");
-				} else if (errCode == -3) {
-					stat = 0;
-					tvState.setText("���ӶϿ����������ӣ�");
-					tvChose.setVisibility(View.GONE);
-					etAddr = (EditText) findViewById(R.id.et_content);
-				} else if (errCode == -4) {
-					stat = 0;
-					tvState.setText("�Է����ߣ����������ӣ�");
-					tvChose.setVisibility(View.GONE);
-					etAddr.setVisibility(View.VISIBLE);
+//			else if(msg.what == MSG_SEND_ERROR){
+//				int errCode = msg.getData().getInt("errCode");
+//				if (errCode == -1) {
+//					stat = 2;
+//					tvState.setText("发送失败");
+//				} else if (errCode == -2) {
+//					stat = 2;
+//					tvState.setText("文件夹不能发送");
+//				} else if (errCode == -3) {
+//					stat = 0;
+//					tvState.setText("链接断开，重新链接！");
+//					tvChose.setVisibility(View.GONE);
+//					etAddr = (EditText) findViewById(R.id.et_content);
+//				} else if (errCode == -4) {
+//					stat = 0;
+//					tvState.setText("对方掉线，请重新链接！");
+//					tvChose.setVisibility(View.GONE);
+//					etAddr.setVisibility(View.VISIBLE);
+//				}
+//			}
+			//有可连接点到来
+			else if(msg.what == MSG_POINT_AVAILABLE){
+				ArrayList<UserMode> addrs = msg.getData().getParcelableArrayList("addrs");
+				for (int i = 0; i < addrs.size(); i++) {
+					Log.i(Tag, "可连接点:" + addrs.get(i).getIp() + ", name:" + addrs.get(i).getName());
 				}
+
+				accPointsAdapter.setAccPoints(addrs);
+				accPointsAdapter.notifyDataSetChanged();
 			}
 		}
 	};
@@ -325,37 +306,37 @@ public class SendingActivity extends Activity {
 
 		public SendFileAsyn(Uri uri) {
 			fileUri = uri;
-			filePath = Tools.getRealFilePath(mContext, uri);
+			filePath = Tools.getRealFilePath(mContext, fileUri);
 			fileName = Tools.getFileName(filePath);
-			Log.e(Tag, "�ļ�·��:" + filePath);
+			Log.e(Tag, "文件路径:" + filePath);
 		}
 
 		@Override
 		protected void onPreExecute() {
-			tvState.setText("���ڷ���:" + fileName);
+			tvState.setText("正在发送:" + fileName);
 		}
 
 		@Override
 		protected void onPostExecute(Integer re) {
 			if (re == -1) {
 				stat = 2;
-				tvState.setText("����ʧ��:" + fileName);
+				tvState.setText("发送失败:" + fileName);
 			} else if (re == -2) {
 				stat = 2;
-				tvState.setText("�ļ��в��ܷ���");
+				tvState.setText("文件夹不能发送");
 			} else if (re == -3) {
 				stat = 0;
-				tvState.setText("���ӶϿ����������ӣ�");
+				tvState.setText("链接断开，重新链接！");
 				tvChose.setVisibility(View.GONE);
 				etAddr = (EditText) findViewById(R.id.et_content);
 			} else if (re == -4) {
 				stat = 0;
-				tvState.setText("�Է����ߣ����������ӣ�");
+				tvState.setText("对方掉线，请重新链接！");
 				tvChose.setVisibility(View.GONE);
 				etAddr.setVisibility(View.VISIBLE);
 			} else if (re == 0) {
 				stat = 2;
-				tvState.setText("���ͳɹ�:" + fileName);
+				tvState.setText("发送成功:" + fileName);
 			}
 		}
 

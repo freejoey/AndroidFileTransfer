@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.example.myfiletransfer.R;
+import com.net.UserMode;
 
 import java.lang.String;
 import java.lang.System;
@@ -27,6 +28,7 @@ public class NetBroadcastReceiver extends BroadcastReceiver {
 	public static final int FLAG_SEND_OK = 6;
 	public static final int FLAG_SEND_ERROR = 7;
 	public static final int FLAG_UDP_NEW_POINT = 8;
+	public static final int FLAG_RCV_FAILED = 9;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -43,12 +45,9 @@ public class NetBroadcastReceiver extends BroadcastReceiver {
 				LauncherActivity.mHandler.sendMessage(msg);
 			}
 		} else if (type == FLAG_NEW_RCV_FILE) {
-			if (RecvFileFragment.mHandler != null) {
-				Log.i(Tag, "收到广播FLAG_NEW_RCV_FILE");
-				Message msg = new Message();
-				msg.what = RecvFileFragment.MSG_NEW_RCV_FILE;
-				RecvFileFragment.mHandler.sendMessage(msg);
-			}
+			Log.i(Tag, "收到广播FLAG_NEW_RCV_FILE");
+			String fileName = intent.getStringExtra("fileName");
+			showNotice("接收完成:" + fileName, 0);
 		}
 		// ֪ͨLauncherActivity���½���
 		else if (type == FLAG_IS_RECV) {
@@ -93,41 +92,53 @@ public class NetBroadcastReceiver extends BroadcastReceiver {
 					SendingActivity.mHandler.sendMessage(msg);
 				}
 				else{
-					String s = "接收完成:"+fileName;
+					String s = "发送完成:"+fileName;
 					showNotice(s, 0);
 				}
 			}
 		}
-		else if(type == FLAG_SEND_ERROR){
-			Log.i(Tag, "收到广播FLAG_SEND_ERROR");
-			if (SendingActivity.mHandler != null) {
-				String fileName = intent.getStringExtra("file");
-				String addr = intent.getStringExtra("addr");
-				int errCode = intent.getIntExtra("errCode", 0);
-
-				if(SendingActivity.mHandler!=null) {
-					Bundle b = new Bundle();
-					b.putString("file", fileName);
-					b.putString("addr", addr);
-					b.putInt("errCode", errCode);
-					Message msg = new Message();
-					msg.what = SendingActivity.MSG_SEND_ERROR;
-					msg.setData(b);
-					SendingActivity.mHandler.sendMessage(msg);
-				}
-				else{
-					String s = "接收文件出错:"+fileName;
-					showNotice(s, 0);
-				}
-			}
-		}
+//		else if(type == FLAG_SEND_ERROR){
+//			Log.i(Tag, "收到广播FLAG_SEND_ERROR");
+//			if (SendingActivity.mHandler != null) {
+//				String fileName = intent.getStringExtra("file");
+//				String addr = intent.getStringExtra("addr");
+//				int errCode = intent.getIntExtra("errCode", 0);
+//
+//				if(SendingActivity.mHandler!=null) {
+//					Bundle b = new Bundle();
+//					b.putString("file", fileName);
+//					b.putString("addr", addr);
+//					b.putInt("errCode", errCode);
+//					Message msg = new Message();
+//					msg.what = SendingActivity.MSG_SEND_ERROR;
+//					msg.setData(b);
+//					SendingActivity.mHandler.sendMessage(msg);
+//				}
+//				else{
+//					String s = "接收文件出错:"+fileName;
+//					showNotice(s, 0);
+//				}
+//			}
+//		}
 		//有新的可连接点
 		else if(type == FLAG_UDP_NEW_POINT){
-			ArrayList<String> addrs = intent.getStringArrayListExtra("addrs");
-			if(addrs!=null)
-				for (int i=0; i<addrs.size(); i++){
-					Log.i(Tag, "可连接点:" + addrs.get(i));
+			Log.i(Tag, "收到可连接点FLAG_UDP_NEW_POINT");
+			ArrayList<UserMode> addrs = intent.getParcelableArrayListExtra("addrs");
+			if(addrs!=null) {
+				//通知需要通知的界面
+				if(SendingActivity.mHandler !=null){
+					Bundle bp = new Bundle();
+					bp.putParcelableArrayList("addrs", addrs);
+					Message mp = SendingActivity.mHandler.obtainMessage();
+					mp.setData(bp);
+					mp.what = SendingActivity.MSG_POINT_AVAILABLE;
+					SendingActivity.mHandler.sendMessage(mp);
 				}
+			}
+		}
+		else if(type == FLAG_RCV_FAILED){
+			String fileName = intent.getStringExtra("fileName");
+			showNotice("接收文件不完全:" + fileName, 0);
 		}
 
 	}

@@ -12,4 +12,5 @@
     <string name="sending_conn">链接</string>
     <string name="sending_et_hint">输入对方地址(IP)</string>
     <string name="sending_chose_file">选择发送文件</string>
+    <string name="sys_trans_progress">传输进度</string>
 </resources>

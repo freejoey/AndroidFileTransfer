@@ -15,15 +15,25 @@ import java.net.SocketTimeoutException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.Constants;
 import com.Tools;
+import com.example.myfiletransfer.R;
 import com.net.SendFileThread.OnThreadListener;
+import com.ui.LauncherActivity;
+import com.ui.MainActivity;
 import com.ui.NetBroadcastReceiver;
 
 public class ClientThread extends Thread {
@@ -37,6 +47,15 @@ public class ClientThread extends Thread {
 	private SendFileThread senderFileThread;
 	private int sendRsp = -1;
 
+	//当前进度条里的进度值
+	private int MY_PROGRESS_ID = 0X12345;
+	private int progress=0;
+	private RemoteViews view=null;
+	private Notification notification;
+	private NotificationManager manager=null;
+	private Intent intent = null;
+	private PendingIntent pIntent = null;//更新显示
+
 	// 10s 内没有数据到来就断开链接
 	private final int RCV_TIME_CONTENT = 10000;
 
@@ -48,6 +67,19 @@ public class ClientThread extends Thread {
 
 		this.inSocket = new BufferedInputStream(this.socket.getInputStream());
 		this.outSocket = new BufferedOutputStream(this.socket.getOutputStream());
+
+		//进度条
+		manager = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		notification = new Notification(R.drawable.ic_launcher, mContext.getResources().getString(R.string.app_name), System.currentTimeMillis());
+		notification.flags = Notification.FLAG_AUTO_CANCEL;
+		view = new RemoteViews(mContext.getPackageName(), R.layout.trans_file_progressbar);
+		Intent i = new Intent(mContext, MainActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent contentIntent = PendingIntent.getActivity(
+				mContext,
+				R.string.app_name,
+				i,
+				PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
 	public boolean isRunning() {
@@ -339,18 +371,37 @@ public class ClientThread extends Thread {
 							rcvLen = 0;
 							// 读取长度为fileLen文件,开启计时器
 							socket.setSoTimeout(RCV_TIME_CONTENT);
-							int rInt = 0;
+							int rInt = 0;//读取下一个字节
+							int rCount = 0; //进度条记录(精度 1%)
+							int stepCount = (int) fileLen /100;
+							progress = 0;
+							view.setProgressBar(R.id.pb, 100, progress, false);
+							notification.contentView = view;
+							notification.contentIntent = pIntent;
+							manager.notify(MY_PROGRESS_ID, notification);
 							for (; rcvLen < fileLen; rcvLen++) {
 								rInt = inSocket.read();
 
 								if (rInt != -1) {
 									outFile.write(rInt);
+
+									//显示进度条
+									rCount++;
+									if(rCount >= stepCount) {
+										progress++;
+										rCount = 0;
+										view.setProgressBar(R.id.pb, 100, progress, false);
+										notification.contentView = view;
+										notification.contentIntent = pIntent;
+										manager.notify(MY_PROGRESS_ID, notification);
+									}
 								} else {
 									Log.i(Tag, "结束标志位:" + rInt
 											+ ", 此时接收长度(包含-1):" + rcvLen);
 									break;
 								}
 							}
+							manager.cancel(MY_PROGRESS_ID);
 							socket.setSoTimeout(0);
 							Log.i(Tag, "接收字节数 :" + rcvLen);
 
@@ -362,10 +413,18 @@ public class ClientThread extends Thread {
 										Constants.NET_BROADCAST_FILTER);
 								intent.putExtra("type",
 										NetBroadcastReceiver.FLAG_NEW_RCV_FILE);
+								intent.putExtra("fileName", fileName);
 								mContext.sendBroadcast(intent);// 传递过去
 							} else {
 								// 通知接收不完全......
 								Log.i(Tag, "接收不完全,发送方文件长度有误");
+
+								Intent intent = new Intent(
+										Constants.NET_BROADCAST_FILTER);
+								intent.putExtra("type",
+										NetBroadcastReceiver.FLAG_RCV_FAILED);
+								intent.putExtra("fileName", fileName);
+								mContext.sendBroadcast(intent);// 传递过去
 							}
 						}// isReady
 					} 
@@ -433,5 +492,5 @@ public class ClientThread extends Thread {
 				}
 			}
 		}// while(isRun)
-	}
+	}//run()
 }

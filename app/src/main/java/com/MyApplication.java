@@ -16,12 +16,21 @@ import com.aidl.NETService;
 public class MyApplication extends Application {
     private static NETInterface netService = null;
     private Context mContext;
+    private static String myName = "Mat";
 
     @Override
     public void onCreate()
     {
         super.onCreate();
         mContext = this;
+    }
+
+    public static String getMyName() {
+        return myName;
+    }
+
+    public static void setMyName(String myName) {
+        myName = myName;
     }
 
     public static NETInterface getNetService() {

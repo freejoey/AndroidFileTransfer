@@ -52,7 +52,7 @@ public class NETService extends Service {
 				re = MySocketFactory.getInstance().getThreadByAddr(addr)
 						.sendFile(filePath);
 			} else {
-				re = -2;
+				re = -3;
 				Log.i(Tag, "找不到对应socket");
 			}
 			return re;
