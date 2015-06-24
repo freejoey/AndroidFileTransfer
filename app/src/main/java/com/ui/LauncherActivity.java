@@ -38,7 +38,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class LauncherActivity extends FragmentActivity {
+public class LauncherActivity extends BaseFragmentActivity {
 	private final String Tag = "LauncherActivity";
 	private Context mContext;
 	private LayoutInflater inflater;

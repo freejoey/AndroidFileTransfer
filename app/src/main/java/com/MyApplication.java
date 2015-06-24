@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.aidl.NETInterface;
 import com.aidl.NETService;
+import com.crash.MyCrashHandler;
 
 /**
  * Created by WangKui on 2015/6/7.
  */
 public class MyApplication extends Application {
+    private static final String Tag = "MyApplication";
     private static NETInterface netService = null;
     private Context mContext;
     private static String myName = "Mat";
@@ -23,6 +26,8 @@ public class MyApplication extends Application {
     {
         super.onCreate();
         mContext = this;
+        MyCrashHandler crashHandler = MyCrashHandler.getInstance();
+        crashHandler.init(this);
     }
 
     public static String getMyName() {

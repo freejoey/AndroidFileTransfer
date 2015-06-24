@@ -17,14 +17,24 @@ public class Constants {
 
 	public static String ROOT_PATH = Environment.getExternalStorageDirectory().getPath();
 	public static String MY_APP_ROOT = ROOT_PATH + "/filetransfer";
-	public static String RECV_FILE_PATH = MY_APP_ROOT + "/recv";
+	public static String RECV_FILE_PATH = MY_APP_ROOT + "/recv/";
+	public static String CRASH_FILE_PATH = MY_APP_ROOT+ "/crash/";
 	public static String getAppPath(){
 		File rcvDic = null;
 		if (Tools.isSDExist()) {
 			return RECV_FILE_PATH;
 		}
 		else {
-			return System.getenv("SECONDARY_STORAGE") + "/filetransfer" + "/recv";
+			return System.getenv("SECONDARY_STORAGE") + "/filetransfer" + "/recv/";
+		}
+	}
+	public static String getCrashPath(){
+		File rcvDic = null;
+		if (Tools.isSDExist()) {
+			return CRASH_FILE_PATH;
+		}
+		else {
+			return System.getenv("SECONDARY_STORAGE") + "/filetransfer" + "/crash/";
 		}
 	}
 	//broadcast

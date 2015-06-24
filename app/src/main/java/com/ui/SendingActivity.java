@@ -2,6 +2,7 @@ package com.ui;
 
 import java.util.ArrayList;
 
+import com.MyApplication;
 import com.Tools;
 import com.aidl.NETInterface;
 import com.aidl.NETService;
@@ -31,7 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SendingActivity extends Activity {
+public class SendingActivity extends BaseActivity {
 	private final String Tag = "SendingActivity";
 	private Context mContext;
 	private NETInterface netService = null;
@@ -63,9 +64,9 @@ public class SendingActivity extends Activity {
 		setContentView(R.layout.activity_sending_file);
 		mContext = this;
 		mHandler = handler;
+		netService = MyApplication.getNetService();
 
 		addr = getIntent().getExtras().getString(ADDR_KEY);
-		bindMyService();
 
 		initView();
 	}
@@ -80,7 +81,6 @@ public class SendingActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		unbindService(conn);
 	}
 
 	private void initView() {
@@ -127,8 +127,16 @@ public class SendingActivity extends Activity {
 			}
 		});
 
-		//搜索可连接点
-		doSearchPoint();
+		if(addr!=null) {
+			Message msg = new Message();
+			msg.what = MSG_CONNECTED;
+			msg.obj = 0;
+			handler.sendMessage(msg);
+		}
+		else {
+			//搜索可连接点
+			doSearchPoint();
+		}
 	}
 
 	public void doSearchPoint(){
@@ -274,27 +282,6 @@ public class SendingActivity extends Activity {
 				accPointsAdapter.setAccPoints(addrs);
 				accPointsAdapter.notifyDataSetChanged();
 			}
-		}
-	};
-
-	private void bindMyService() {
-		// Intent intent=new Intent("com.dongzi.IStockQuoteService");
-		Intent intent = new Intent(mContext, NETService.class);
-		// startService(intent);
-
-		bindService(intent, conn, mContext.BIND_AUTO_CREATE);
-	}
-
-	private ServiceConnection conn = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			netService = (NETInterface) NETInterface.Stub.asInterface(service);
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			// TODO Auto-generated method stub
 		}
 	};
 

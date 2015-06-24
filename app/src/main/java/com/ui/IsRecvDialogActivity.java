@@ -20,7 +20,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class IsRecvDialogActivity extends Activity implements OnClickListener {
+public class IsRecvDialogActivity extends BaseActivity implements OnClickListener {
 	private final String Tag = "IsRecvDialogActivity";
 	private Context mContext;
 	private NETInterface netService = null;
