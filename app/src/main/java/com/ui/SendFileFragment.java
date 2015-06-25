@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.Constants;
 import com.Tools;
+import com.andexert.library.RippleView;
 import com.example.myfiletransfer.R;
 
 import android.content.Intent;
@@ -23,10 +24,23 @@ public class SendFileFragment extends Fragment {
 	private View view;
 	private ListView lvFile;
 	private Button btSend;
+	private RippleView rpBtn;
+	private boolean btSendClicked = false;
 	
 	@Override
 	public void onCreate(Bundle saveInstance) {
 		super.onCreate(saveInstance);
+	}
+
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (isVisibleToUser) {
+			//相当于Fragment的onResume
+			btSendClicked = false;
+		} else {
+			//相当于Fragment的onPause
+		}
 	}
 
 	@Override
@@ -47,17 +61,28 @@ public class SendFileFragment extends Fragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
+		rpBtn = (RippleView) view.findViewById(R.id.rp_btn_sending);
+		rpBtn.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+
+			@Override
+			public void onComplete(RippleView rippleView) {
+				if(btSendClicked){
+					Bundle b = new Bundle();
+					b.putString(SendingActivity.ADDR_KEY, null);
+					Intent i = new Intent(getActivity(), SendingActivity.class);
+					i.putExtras(b);
+					getActivity().startActivity(i);
+				}
+			}
+
+		});;
 		btSend = (Button) view.findViewById(R.id.btn_sending);
 		btSend.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				Bundle b = new Bundle();
-				b.putString(SendingActivity.ADDR_KEY, null);
-				Intent i = new Intent(getActivity(), SendingActivity.class);
-				i.putExtras(b);
-				getActivity().startActivity(i);
+				btSendClicked = true;
 			}
 		});
 		

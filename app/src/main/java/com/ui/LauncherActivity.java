@@ -10,6 +10,8 @@ import com.Tools;
 import com.aidl.NETInterface;
 import com.aidl.NETService;
 import com.example.myfiletransfer.R;
+import com.gc.materialdesign.views.ButtonFlat;
+import com.gc.materialdesign.views.ButtonRectangle;
 import com.ui.MyFragmentDialog.OnItemClicked;
 
 import android.app.ActivityManager;
@@ -47,7 +49,7 @@ public class LauncherActivity extends BaseFragmentActivity {
 
 	private NETInterface netService = null;
 
-	private Button btnFile;
+	private ButtonRectangle btnFile;
 	private TextView tvMyAddr;
 	private ListView lvConn;
 
@@ -118,7 +120,7 @@ public class LauncherActivity extends BaseFragmentActivity {
 		});
 
 		tvMyAddr = (TextView) findViewById(R.id.tv_my_addr);
-		btnFile = (Button) findViewById(R.id.btn_send_recv);
+		btnFile = (ButtonRectangle) findViewById(R.id.btn_send_recv);
 		btnFile.setOnClickListener(new OnClickListener() {
 
 			@Override

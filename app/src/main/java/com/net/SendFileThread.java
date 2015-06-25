@@ -8,13 +8,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.Constants;
 import com.Tools;
+import com.ui.NetBroadcastReceiver;
 
 public class SendFileThread extends Thread {
 	private final String Tag = "SendFileThread";
+	private Context mContext;
+
 	private FileInputStream fis = null;
 	private BufferedInputStream bfis = null;
 	private BufferedOutputStream outSocket;
@@ -22,7 +27,8 @@ public class SendFileThread extends Thread {
 	String filePath;
 	private boolean agreeRecv = false;
 
-	public SendFileThread(Socket socket, String filePath) throws IOException {
+	public SendFileThread(Socket socket, String filePath, Context context) throws IOException {
+		this.mContext = context;
 		this.socket = socket;
 		this.filePath = filePath;
 		this.outSocket = new BufferedOutputStream(this.socket.getOutputStream());
@@ -107,10 +113,35 @@ public class SendFileThread extends Thread {
 				bfis = new BufferedInputStream(fis);
 				int t;
 				long absSent = 0;
+				int rCount = 0; //进度条记录(精度 1%)
+				int stepCount = (int) size /100;
+				int progress = 0;
 				while ((t = bfis.read()) != -1) {
 					send(t);
 					absSent++;
+
+					rCount++;
+					if (rCount >= stepCount){
+						rCount = 0;
+						progress++;
+						Intent intent = new Intent(
+								Constants.NET_BROADCAST_FILTER);
+						intent.putExtra("type",
+								NetBroadcastReceiver.FLAG_SENDING_PROGRESS);
+						intent.putExtra("progress", progress);
+						intent.putExtra("fileName", fName);
+						mContext.sendBroadcast(intent);// 传递过去
+					}
 				}
+				//确认发送结束
+				Intent intent = new Intent(
+						Constants.NET_BROADCAST_FILTER);
+				intent.putExtra("type",
+						NetBroadcastReceiver.FLAG_SENDING_PROGRESS);
+				intent.putExtra("progress", 100);
+				intent.putExtra("fileName", fName);
+				mContext.sendBroadcast(intent);// 传递过去
+
 				outSocket.flush();
 				Log.i(Tag, "发送文件实际长度:" + absSent + ", 预读文件长度:" + size);
 				listener.onFinished();

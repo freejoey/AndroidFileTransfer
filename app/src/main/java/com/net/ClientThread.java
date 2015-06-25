@@ -141,7 +141,7 @@ public class ClientThread extends Thread {
 			return -4;
 
 		try {
-			senderFileThread = new SendFileThread(socket, fp);
+			senderFileThread = new SendFileThread(socket, fp, mContext);
 			senderFileThread.setListener(new OnThreadListener() {
 
 				@Override

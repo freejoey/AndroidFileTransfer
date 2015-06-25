@@ -7,6 +7,7 @@ import com.Tools;
 import com.aidl.NETInterface;
 import com.aidl.NETService;
 import com.example.myfiletransfer.R;
+import com.gc.materialdesign.views.ProgressBarDeterminate;
 import com.net.UserMode;
 
 import android.app.Activity;
@@ -28,6 +29,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +45,8 @@ public class SendingActivity extends BaseActivity {
 	private TextView tvState, tvChose;
 	private ListView lvAccPoints;
 	private AccPointsAdapter accPointsAdapter;
+	private LinearLayout lltSendingPB;
+	private ProgressBarDeterminate pbSending;
 
 	private String addr = null;
 
@@ -52,6 +56,7 @@ public class SendingActivity extends BaseActivity {
 	public static final int MSG_SEND_FIN = 2;
 //	public static final int MSG_SEND_ERROR = 3;
 	public static final int MSG_POINT_AVAILABLE = 4;
+	public static final int MSG_UPDT_SENDING_PG = 5;
 
 	/*
 	 * 当前状态: 0: 非链接 1：链接 2：正在发送 3：发送完成
@@ -95,6 +100,9 @@ public class SendingActivity extends BaseActivity {
 			}
 		});
 
+		lltSendingPB = (LinearLayout) findViewById(R.id.llt_sending_progress);
+		pbSending = (ProgressBarDeterminate) findViewById(R.id.pb_sending_file_progress);
+		lltSendingPB.setVisibility(View.GONE);
 		tvChose = (TextView) findViewById(R.id.chose_file_text);
 		tvChose.setVisibility(View.GONE);
 		tvState = (TextView) findViewById(R.id.state_text);
@@ -247,10 +255,11 @@ public class SendingActivity extends BaseActivity {
 			else if(msg.what == MSG_TARGET_REFUSE){
 				Bundle b = msg.getData();
 				tvState.setText("对方拒绝接收该文件");
+				lltSendingPB.setVisibility(View.GONE);
 			}
 			else if(msg.what == MSG_SEND_FIN){
 				stat = 2;
-				tvState.setText("发送成功");
+				tvState.setText("发送完成");
 			}
 //			else if(msg.what == MSG_SEND_ERROR){
 //				int errCode = msg.getData().getInt("errCode");
@@ -282,10 +291,21 @@ public class SendingActivity extends BaseActivity {
 				accPointsAdapter.setAccPoints(addrs);
 				accPointsAdapter.notifyDataSetChanged();
 			}
+			//更新发送文件进度条
+			else if(msg.what == MSG_UPDT_SENDING_PG){
+				Bundle b = msg.getData();
+				int progress = b.getInt("progress");
+				String fName = b.getString("fineName");
+				if(progress<100) {
+					pbSending.setProgress(progress);
+				}else{
+					lltSendingPB.setVisibility(View.GONE);
+				}
+			}
 		}
 	};
 
-	private class SendFileAsyn extends AsyncTask<Void, Void, Integer> {
+	private class SendFileAsyn extends AsyncTask<Void, Integer, Integer> {
 		private Uri fileUri;
 		private String fileName;
 		private String filePath;
@@ -300,11 +320,16 @@ public class SendingActivity extends BaseActivity {
 
 		@Override
 		protected void onPreExecute() {
+			pbSending.setMax(100);
+			pbSending.setMin(0);
+			pbSending.setProgress(0);
+			lltSendingPB.setVisibility(View.VISIBLE);
 			tvState.setText("正在发送:" + fileName);
 		}
 
 		@Override
 		protected void onPostExecute(Integer re) {
+			//lltSendingPB.setVisibility(View.GONE);
 			if (re == -1) {
 				stat = 2;
 				tvState.setText("发送失败:" + fileName);
@@ -325,6 +350,11 @@ public class SendingActivity extends BaseActivity {
 				stat = 2;
 				tvState.setText("发送成功:" + fileName);
 			}
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer...p){
+			//pbSending.setProgress(p[0]);
 		}
 
 		@Override

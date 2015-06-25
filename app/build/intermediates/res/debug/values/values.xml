@@ -3,8 +3,23 @@
     <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/src/main/res/values/color.xml -->
     <eat-comment/>
     <color name="bkg_color">#f8f9f1</color>
+    <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/build/intermediates/exploded-aar/com.github.navasmdc/MaterialDesign/1.5/res/values/values.xml -->
+    <eat-comment/>
+    <color name="green">#00FF00</color>
+    <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/build/intermediates/exploded-aar/com.github.traex.rippleeffect/library/1.3/res/values/values.xml -->
+    <eat-comment/>
+    <color name="rippelColor">#FFFFFF</color>
+    <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/src/main/res/values/color.xml -->
+    <eat-comment/>
     <color name="text_black">#000000</color>
+    <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/build/intermediates/exploded-aar/com.github.navasmdc/MaterialDesign/1.5/res/values/values.xml -->
+    <eat-comment/>
+    <color name="thumbColor">#66aaaaaa</color>
+    <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/src/main/res/values/color.xml -->
+    <eat-comment/>
     <color name="title_bkg">#71C671</color>
+    <declare-styleable name="CustomAttributes"><attr format="color|reference" name="rippleColor"/><attr format="float" name="rippleSpeed"/><attr format="boolean" name="showNumberIndicator"/><attr format="integer" name="max"/><attr format="integer" name="min"/><attr format="integer" name="value"/><attr format="integer" name="progress"/><attr format="dimension" name="ringWidth"/><attr format="boolean" name="check"/><attr format="dimension" name="checkBoxSize"/><attr format="dimension" name="thumbSize"/><attr format="integer" name="iconDrawable"/><attr format="dimension" name="iconSize"/><attr format="boolean" name="animate"/><attr format="float" name="rippleBorderRadius"/><attr format="boolean" name="clickAfterRipple"/></declare-styleable>
+    <declare-styleable name="RippleView"><attr format="integer" name="rv_alpha"/><attr format="integer" name="rv_framerate"/><attr format="integer" name="rv_rippleDuration"/><attr format="integer" name="rv_zoomDuration"/><attr format="color" name="rv_color"/><attr format="boolean" name="rv_centered"/><attr format="enum" name="rv_type"><enum name="simpleRipple" value="0"/><enum name="doubleRipple" value="1"/><enum name="rectangle" value="2"/></attr><attr format="dimension" name="rv_ripplePadding"/><attr format="boolean" name="rv_zoom"/><attr format="float" name="rv_zoomScale"/></declare-styleable>
     <!-- From: file:/D:/ASWorkspace/MyFileTransfer/app/src/main/res/values/dimen.xml -->
     <eat-comment/>
     <dimen name="title_height">50dp</dimen>

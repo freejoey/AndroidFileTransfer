@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.myfiletransfer"
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 21
     }
 
@@ -20,4 +20,6 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.github.navasmdc:MaterialDesign:1.5@aar'
+    compile 'com.github.traex.rippleeffect:library:1.3'
 }

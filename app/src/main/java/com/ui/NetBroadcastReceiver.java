@@ -29,6 +29,7 @@ public class NetBroadcastReceiver extends BroadcastReceiver {
 	public static final int FLAG_SEND_ERROR = 7;
 	public static final int FLAG_UDP_NEW_POINT = 8;
 	public static final int FLAG_RCV_FAILED = 9;
+	public static final int FLAG_SENDING_PROGRESS = 10;//转发正在发送文件的进度值
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -139,6 +140,21 @@ public class NetBroadcastReceiver extends BroadcastReceiver {
 		else if(type == FLAG_RCV_FAILED){
 			String fileName = intent.getStringExtra("fileName");
 			showNotice("接收文件不完全:" + fileName, 0);
+		}
+		//转发发送进度progress
+		else if(FLAG_SENDING_PROGRESS == type){
+			if(SendingActivity.mHandler != null){
+				String fName = intent.getStringExtra("fileName");
+				int progress = intent.getIntExtra("progress", 0);
+
+				Bundle bp = new Bundle();
+				bp.putString("fileName", fName);
+				bp.putInt("progress", progress);
+				Message mp = SendingActivity.mHandler.obtainMessage();
+				mp.setData(bp);
+				mp.what = SendingActivity.MSG_UPDT_SENDING_PG;
+				SendingActivity.mHandler.sendMessage(mp);
+			}
 		}
 
 	}
